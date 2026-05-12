@@ -1,0 +1,11 @@
+.env
+.seen_jobs.json
+pharma_alerts.log
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+resume/*.pdf
+resume/*.txt
+resume/*.docx
