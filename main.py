@@ -95,7 +95,8 @@ def main() -> None:
 
     # Validate required secrets before doing any network work
     required = {
-        "RAPIDAPI_KEY": config.rapidapi_key,
+        "ADZUNA_APP_ID": config.adzuna_app_id,
+        "ADZUNA_APP_KEY": config.adzuna_app_key,
         "EMAIL_FROM": config.email_from,
         "EMAIL_TO": config.email_to,
         "GMAIL_APP_PASSWORD": config.gmail_app_password,
