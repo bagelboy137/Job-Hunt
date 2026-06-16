@@ -68,6 +68,12 @@ class JobSearcher:
 
         pharma = [j for j in seen.values() if self._is_pharma(j.get("company", ""))]
         log.info("Kept %d/%d jobs matching pharma company list", len(pharma), len(seen))
+
+        if self.config.min_salary:
+            before = len(pharma)
+            pharma = [j for j in pharma if self._salary_ok(j)]
+            log.info("Salary filter ($%s+): %d -> %d jobs", f"{self.config.min_salary:,}", before, len(pharma))
+
         return pharma
 
     # ── Private ───────────────────────────────────────────────────────────────
@@ -83,6 +89,8 @@ class JobSearcher:
             "results_per_page": 50,
             "content-type": "application/json",
         }
+        if self.config.min_salary:
+            params["salary_min"] = self.config.min_salary
         try:
             resp = requests.get(_BASE_URL, params=params, timeout=20)
             resp.raise_for_status()
@@ -99,6 +107,13 @@ class JobSearcher:
     def _is_pharma(company: str) -> bool:
         low = company.lower()
         return any(name in low for name in PHARMA_COMPANIES)
+
+    def _salary_ok(self, job: dict) -> bool:
+        # If no salary is listed we can't rule it out — include it
+        sal_max = job.get("_raw_salary_max")
+        if sal_max is None:
+            return True
+        return sal_max >= self.config.min_salary
 
     @staticmethod
     def _normalize(raw: dict) -> dict:
@@ -129,4 +144,6 @@ class JobSearcher:
             "posted_at": raw.get("created", ""),
             "employment_type": raw.get("contract_time", ""),
             "salary": salary,
+            # Raw value kept for salary floor filtering; not shown in email
+            "_raw_salary_max": hi,
         }
