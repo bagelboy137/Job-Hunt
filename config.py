@@ -18,7 +18,7 @@ class Config:
     # Job search settings
     days_back: int = 3
     min_fit_score: int = 6
-    min_salary: int = 161500  # 15% below current $190k — adjust as needed
+    min_salary: int = 100000
 
     # Adzuna API — free tier 1,000 req/month: https://developer.adzuna.com/
     adzuna_app_id: str = field(default_factory=lambda: os.getenv("ADZUNA_APP_ID", ""))
