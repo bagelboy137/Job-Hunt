@@ -1,0 +1,48 @@
+name: Daily Pharma Job Alert
+
+on:
+  schedule:
+    # Runs at 9am Eastern time (1pm UTC) every day
+    - cron: '0 13 * * *'
+  # Adds a "Run workflow" button in GitHub so you can trigger it manually
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pharma job alert
+        env:
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python main.py
+
+      # Commit the seen-jobs list back so you don't get repeat emails
+      - name: Save seen jobs state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .seen_jobs.json 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore: update seen jobs [skip ci]"
+          git push || true
