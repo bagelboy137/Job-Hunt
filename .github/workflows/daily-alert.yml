@@ -1,10 +1,9 @@
 name: Daily Pharma Job Alert
 
 on:
-  schedule:
-    # Runs at 9am Eastern time (1pm UTC) every day
-    - cron: '0 13 * * *'
-  # Adds a "Run workflow" button in GitHub so you can trigger it manually
+  # schedule disabled — re-add the cron line below to re-enable
+  # schedule:
+  #   - cron: '0 13 * * *'
   workflow_dispatch:
 
 permissions:
